@@ -1,58 +1,131 @@
 <template>
-  <div class="hello">
-    <h1>{{ msg }}</h1>
-    <p>
-      For a guide and recipes on how to configure / customize this project,<br>
-      check out the
-      <a href="https://cli.vuejs.org" target="_blank" rel="noopener">vue-cli documentation</a>.
-    </p>
-    <h3>Installed CLI Plugins</h3>
-    <ul>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-babel" target="_blank" rel="noopener">babel</a></li>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-eslint" target="_blank" rel="noopener">eslint</a></li>
-    </ul>
-    <h3>Essential Links</h3>
-    <ul>
-      <li><a href="https://vuejs.org" target="_blank" rel="noopener">Core Docs</a></li>
-      <li><a href="https://forum.vuejs.org" target="_blank" rel="noopener">Forum</a></li>
-      <li><a href="https://chat.vuejs.org" target="_blank" rel="noopener">Community Chat</a></li>
-      <li><a href="https://twitter.com/vuejs" target="_blank" rel="noopener">Twitter</a></li>
-      <li><a href="https://news.vuejs.org" target="_blank" rel="noopener">News</a></li>
-    </ul>
-    <h3>Ecosystem</h3>
-    <ul>
-      <li><a href="https://router.vuejs.org" target="_blank" rel="noopener">vue-router</a></li>
-      <li><a href="https://vuex.vuejs.org" target="_blank" rel="noopener">vuex</a></li>
-      <li><a href="https://github.com/vuejs/vue-devtools#vue-devtools" target="_blank" rel="noopener">vue-devtools</a></li>
-      <li><a href="https://vue-loader.vuejs.org" target="_blank" rel="noopener">vue-loader</a></li>
-      <li><a href="https://github.com/vuejs/awesome-vue" target="_blank" rel="noopener">awesome-vue</a></li>
-    </ul>
-  </div>
+    <div id="hello">
+        <div v-show="!loginState" id="firebaseui-auth-container"></div>
+        <div v-if="loginState">
+            <v-btn v-on:click="signOut" elevation="2" color="accent">Logout</v-btn>
+        </div>
+    </div>
 </template>
 
 <script>
-export default {
-  name: 'HelloWorld',
-  props: {
-    msg: String
-  }
-}
+
+    // Firebase App (the core Firebase SDK) is always required and must be listed first
+    import firebase from "firebase/app";
+    // If you enabled Analytics in your project, add the Firebase SDK for Analytics
+    import "firebase/analytics";
+    // Add the Firebase products that you want to use
+    import "firebase/auth";
+    import "firebase/firestore";
+    import * as firebaseui from "firebaseui";
+    // If you are using v7 or any earlier version of the JS SDK, you should import firebase using namespace import
+    // import * as firebase from "firebase/app"
+
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyAJpGO-ESWUusEun6P--5QWZ4BXXe1GdZY",
+        authDomain: "fabula-animi.firebaseapp.com",
+        projectId: "fabula-animi",
+        storageBucket: "fabula-animi.appspot.com",
+        messagingSenderId: "1070538885038",
+        appId: "1:1070538885038:web:23fa02bde487a2539baa3f",
+        measurementId: "G-TC4T1L7RGW"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+
+
+    export default {
+        name: 'HelloWorld',
+        props: {
+            msg: String
+        },
+        data() {
+            return {
+                loginState: false
+            }
+        },
+        methods: {
+            signOut() {
+                let _this = this;
+                firebase.auth().signOut().then(() => {
+                    _this.loginState = false;
+                    _this.renderAuthUI();
+                }).catch((error) => {
+                    console.error("Error", error);
+                });
+            },
+            renderAuthUI() {
+                let ui = new firebaseui.auth.AuthUI(firebase.auth());
+
+                let uiConfig = {
+                    signInOptions: [
+                        firebase.auth.PhoneAuthProvider.PROVIDER_ID,
+                        firebase.auth.EmailAuthProvider.PROVIDER_ID,
+                        firebase.auth.GoogleAuthProvider.PROVIDER_ID
+                    ],
+                    callbacks: {
+                        signInSuccessWithAuthResult: function (authResult, redirectUrl) {
+                            console.log("success signin", authResult);
+                            console.log("redirectUrl", redirectUrl);
+                            return true;
+                        },
+                        uiShown: function () {
+                            // The widget is rendered.
+                            // Hide the loader.
+                            // document.getElementById('loader').style.display = 'none';
+                        }
+                    },
+                    signInFlow: 'popup',
+                    signInSuccessUrl: 'http://localhost:8080/restricted'
+                };
+
+                ui.start('#firebaseui-auth-container', uiConfig);
+            }
+        },
+        mounted() {
+            let _this = this;
+            firebase.auth().onAuthStateChanged(function (user) {
+                if (user) {
+                    _this.loginState = true;
+                    // alert(JSON.stringify(user))
+                } else {
+                    _this.loginState = false;
+                    _this.renderAuthUI();
+                }
+            });
+
+
+        }
+    }
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-h3 {
-  margin: 40px 0 0;
-}
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-li {
-  display: inline-block;
-  margin: 0 10px;
-}
-a {
-  color: #42b983;
-}
+    @import "~firebaseui/dist/firebaseui.css";
+
+    #firebaseui-auth-container {
+        box-shadow: 0 5px 10px 0 rgb(0 0 0 / 10%);
+        padding: 10px;
+        overflow: hidden;
+        width: 390px;
+        background: #fff;
+        border-radius: 10px;
+
+    }
+
+    #hello {
+        width: 100%;
+        min-height: 100vh;
+        display: -webkit-box;
+        display: -webkit-flex;
+        display: -moz-box;
+        display: -ms-flexbox;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: center;
+        padding: 15px;
+        background: #f2f2f2;
+    }
 </style>
