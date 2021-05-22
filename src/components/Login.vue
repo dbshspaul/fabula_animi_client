@@ -1,5 +1,5 @@
 <template>
-    <div id="hello">
+    <div id="login">
         <div v-show="!loginState" id="firebaseui-auth-container"></div>
         <div v-if="loginState">
             <v-btn v-on:click="signOut" elevation="2" color="accent">Logout</v-btn>
@@ -9,30 +9,11 @@
 
 <script>
 
-    // Firebase App (the core Firebase SDK) is always required and must be listed first
     import firebase from "firebase/app";
-    // If you enabled Analytics in your project, add the Firebase SDK for Analytics
     import "firebase/analytics";
-    // Add the Firebase products that you want to use
     import "firebase/auth";
     import "firebase/firestore";
     import * as firebaseui from "firebaseui";
-    // If you are using v7 or any earlier version of the JS SDK, you should import firebase using namespace import
-    // import * as firebase from "firebase/app"
-
-
-    const firebaseConfig = {
-        apiKey: "AIzaSyAJpGO-ESWUusEun6P--5QWZ4BXXe1GdZY",
-        authDomain: "fabula-animi.firebaseapp.com",
-        projectId: "fabula-animi",
-        storageBucket: "fabula-animi.appspot.com",
-        messagingSenderId: "1070538885038",
-        appId: "1:1070538885038:web:23fa02bde487a2539baa3f",
-        measurementId: "G-TC4T1L7RGW"
-    };
-
-    // Initialize Firebase
-    firebase.initializeApp(firebaseConfig);
 
 
     export default {
@@ -50,12 +31,12 @@
                 let _this = this;
                 firebase.auth().signOut().then(() => {
                     _this.loginState = false;
-                    _this.renderAuthUI();
                 }).catch((error) => {
                     console.error("Error", error);
                 });
             },
             renderAuthUI() {
+                let _this = this;
                 let ui = new firebaseui.auth.AuthUI(firebase.auth());
 
                 let uiConfig = {
@@ -65,9 +46,9 @@
                         firebase.auth.GoogleAuthProvider.PROVIDER_ID
                     ],
                     callbacks: {
-                        signInSuccessWithAuthResult: function (authResult, redirectUrl) {
-                            console.log("success signin", authResult);
-                            console.log("redirectUrl", redirectUrl);
+                        signInSuccessWithAuthResult: function () {
+                            _this.$router.push("home")
+                                .catch(() => {});
                             return true;
                         },
                         uiShown: function () {
@@ -77,7 +58,7 @@
                         }
                     },
                     signInFlow: 'popup',
-                    signInSuccessUrl: 'http://localhost:8080/restricted'
+                    // signInSuccessUrl: '/home'
                 };
 
                 ui.start('#firebaseui-auth-container', uiConfig);
@@ -85,13 +66,12 @@
         },
         mounted() {
             let _this = this;
+            _this.renderAuthUI();
             firebase.auth().onAuthStateChanged(function (user) {
                 if (user) {
                     _this.loginState = true;
-                    // alert(JSON.stringify(user))
                 } else {
                     _this.loginState = false;
-                    _this.renderAuthUI();
                 }
             });
 
@@ -114,7 +94,7 @@
 
     }
 
-    #hello {
+    #login {
         width: 100%;
         min-height: 100vh;
         display: -webkit-box;
