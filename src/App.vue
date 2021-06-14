@@ -1,13 +1,27 @@
-<template>
+<template xmlns:v-slot="http://www.w3.org/1999/XSL/Transform">
 
 
-    <div id="app">
-        <v-card  class="overflow-hidden">
-            <v-app-bar dark absolute elevate-on-scroll scroll-target="#scrolling-techniques-7">
+    <div id="app" data-app>
+        <v-card>
+            <v-app-bar dark>
+                <v-menu offset-y>
+                    <template v-slot:activator="{ on, attrs }">
+                        <v-app-bar-nav-icon v-bind="attrs" v-on="on"></v-app-bar-nav-icon>
+                    </template>
+                    <v-list>
+                        <v-list-item
+                                v-for="(item, index) in items"
+                                :key="index"
+                                @click="$router.push(item.path)"
+                        >
+                            <v-list-item-title>{{ item.title }}</v-list-item-title>
+                        </v-list-item>
+                    </v-list>
+                </v-menu>
+
+
                 <v-toolbar-title>Welcome {{$store.state.name}}</v-toolbar-title>
-
                 <v-spacer></v-spacer>
-
                 <v-icon
                         v-if="$store.state.uid!=''"
                         large
@@ -17,7 +31,7 @@
                     mdi-logout
                 </v-icon>
             </v-app-bar>
-            <v-sheet id="scrolling-techniques-7" class="overflow-y-auto">
+            <v-sheet>
                 <v-container>
                     <router-view></router-view>
                 </v-container>
@@ -28,6 +42,7 @@
 
 <script>
     import firebase from "firebase/app";
+    require("firebase/firestore");
 
     const firebaseConfig = {
         apiKey: "AIzaSyAJpGO-ESWUusEun6P--5QWZ4BXXe1GdZY",
@@ -45,6 +60,14 @@
     export default {
         name: 'App',
         components: {},
+        data() {
+            return {
+                items: [
+                    {title: 'Home', path: "/home"},
+                    {title: 'My Link', path: "/link"},
+                ]
+            }
+        },
         mounted() {
             let _this = this;
             firebase.auth().onAuthStateChanged(function (user) {

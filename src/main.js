@@ -1,16 +1,18 @@
 import Vue from 'vue'
-import VuexConfig from "./service/VuexConfig";
 import App from "./App";
 import RouterConfig from "./RouterConfig";
 import vuetify from "./VuetifyConfig";
+import store from "./service/VuexConfig.js";
+import VueSocialSharing from "vue-social-sharing";
 
 Vue.config.productionTip = false
 
 let routerConfig = new RouterConfig();
 let router = routerConfig.configRouter(Vue);
 
-let vuexConfig = new VuexConfig();
-let store = vuexConfig.configStore(Vue);
+
+
+Vue.use(VueSocialSharing);
 
 new Vue({
     store,
