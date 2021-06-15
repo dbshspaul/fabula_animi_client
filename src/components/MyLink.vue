@@ -9,7 +9,13 @@
             Your magic link already generated
         </v-card-subtitle>
         <v-card-text>
-            <a :href="link">{{link}}</a>
+            <a :href="link" ref="mylink">{{link}} </a>
+            <v-icon
+                    color="green darken-2"
+                    @click="copyURL"
+            >
+                mdi-content-copy
+            </v-icon>
         </v-card-text>
         <v-card-actions>
             <v-spacer>
@@ -30,6 +36,7 @@
         data() {
             return {
                 link: 'https://fabula-animi.web.app/#/fabula-animi/' + this.$store.state.uid,
+                // link: 'http://localhost:8080/#/fabula-animi/' + this.$store.state.uid,
                 shareMedia: [
                     {"network": "Email", "icon": "email"},
                     {"network": "EverNote", "icon": "evernote"},
@@ -44,6 +51,16 @@
                     {"network": "Twitter", "icon": "twitter"},
                     {"network": "WhatsApp", "icon": "whatsapp"}
                 ]
+            }
+        },
+        methods: {
+            copyURL() {
+                let _this = this;
+                navigator.clipboard.writeText(this.link).then(function() {
+                    _this.$toast.success("Link copied successfully");
+                }, function() {
+                    _this.$toast.error("Failed to copy link");
+                });
             }
         }
     }

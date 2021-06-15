@@ -44,19 +44,12 @@
     .card {
         padding: 25px;
         margin-bottom: 10px;
+        width: 100%;
     }
 
     #home {
         width: 100%;
-        min-height: 100vh;
-        display: -webkit-box;
-        display: -webkit-flex;
-        display: -moz-box;
-        display: -ms-flexbox;
-        display: flex;
         flex-flow: column;
-        justify-content: center;
-        align-items: center;
         background: #f2f2f2;
         padding: 15px;
     }
